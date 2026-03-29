@@ -107,12 +107,11 @@ def load_model_bg(model_name):
     global model
     from faster_whisper import WhisperModel
     # Добавляем CUDA DLL в PATH
-    import site
-    sp = site.getsitepackages()[0] if hasattr(site, 'getsitepackages') else os.path.join(os.path.dirname(os.__file__), 'site-packages')
-    for pkg in ('cublas', 'cudnn', 'cuda_nvrtc'):
-        dll_dir = os.path.join(sp, 'nvidia', pkg, 'bin')
-        if os.path.isdir(dll_dir):
-            os.environ['PATH'] = dll_dir + os.pathsep + os.environ.get('PATH', '')
+    import glob
+    for dll_dir in glob.glob(os.path.expanduser('~/AppData/Local/Python/*/Lib/site-packages/nvidia/*/bin')):
+        os.environ['PATH'] = dll_dir + os.pathsep + os.environ.get('PATH', '')
+        if hasattr(os, 'add_dll_directory'):
+            os.add_dll_directory(dll_dir)
     set_icon(ICON_PROC, "Voice Input: загрузка модели...")
     try:
         model = WhisperModel(model_name, device="cuda", compute_type="float16")
